@@ -65,7 +65,6 @@ jobs:
           ISSUE_BODY: '${{ github.event.pull_request.body || github.event.issue.body }}'
           PULL_REQUEST_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           REPOSITORY: '${{ github.repository }}'
-          ADDITIONAL_CONTEXT: '${{ inputs.additional_context }}'
         with:
           gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
           gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
@@ -101,9 +100,7 @@ jobs:
                   "includeTools": [
                     "add_comment_to_pending_review",
                     "create_pending_pull_request_review",
-                    "get_pull_request_diff",
-                    "get_pull_request_files",
-                    "get_pull_request",
+                    "pull_request_read",
                     "submit_pending_pull_request_review"
                   ],
                   "env": {
@@ -122,7 +119,6 @@ jobs:
               }
             }
           prompt: '/gemini-review'
-
       - name: 'Run Gemini security analysis review'
         uses: 'google-github-actions/run-gemini-cli@main' # ratchet:exclude
         id: 'gemini_security_analysis'
@@ -139,15 +135,14 @@ jobs:
           gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
-        #   gemini_debug: '${{ fromJSON(vars.DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
-          gemini_debug: 'true'
+          gemini_debug: '${{ fromJSON(vars.DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
           gemini_model: '${{ vars.GEMINI_MODEL }}'
           google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           extensions: |
             [
-              "https://github.com/CallumHYoung/security.git"
+              "https://github.com/gemini-cli-extensions/security.git"
             ]
           settings: |-
             {
@@ -172,9 +167,7 @@ jobs:
                   "includeTools": [
                     "add_comment_to_pending_review",
                     "create_pending_pull_request_review",
-                    "get_pull_request_diff",
-                    "get_pull_request_files",
-                    "get_pull_request",
+                    "pull_request_read",
                     "submit_pending_pull_request_review"
                   ],
                   "env": {
@@ -188,10 +181,7 @@ jobs:
                   "run_shell_command(echo)",
                   "run_shell_command(grep)",
                   "run_shell_command(head)",
-                  "run_shell_command(tail)",
-                  "run_shell_command(touch)",
-                  "run_shell_command(ls)",
-                  "run_shell_command(pwd)"
+                  "run_shell_command(tail)"
                 ]
               }
             }
